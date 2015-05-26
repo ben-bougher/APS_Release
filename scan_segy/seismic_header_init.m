@@ -1,4 +1,4 @@
-function [seismic] = seismic_header_init(segyfile)
+function [seismic] = seismic_header_init(segyfile, il_byte, xl_byte)
 % $$$ Creates a structure summarizing a segy file.
 % $$$ 
 % $$$ Arguments:
@@ -61,6 +61,8 @@ function [seismic] = seismic_header_init(segyfile)
     else
         bytes_per_sample = 4;  % Assign default 4 bytes per sample
     end
+    
+    seismic.bytes_per_sample = bytes_per_sample;
     
     % store the inline and crossline byte locations
     seismic.ilxl_bytes = [il_byte xl_byte];                     

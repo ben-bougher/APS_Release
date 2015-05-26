@@ -1,19 +1,20 @@
-function [matlite] = matlite_header_init(seismic_header, il_byte, xl_byte,...
-                                         block_size)
+function matlite = matlite_header_init(seismic, block_size, offset_byte)
+%% Function definition
   %  Makes a matlite file that summarizes the byte locations for each trace.
   %  Arguments:
   %     Seismic header
   %  
   %  Fields in matlite file:
-  %  prestack (Bool): Indicates whether the file is prestack data
-  %  ilxl_bytes (array): Array of byte locations to the il and xl information ...
-  %      for each trace
   %%
 
+  il_byte = str2num(seismic.ilxl_bytes(1:3));
+  xl_byte = str2num(seismic.ilxl_bytes(4:6));
+   
+  bytes_per_sample = seismic.bytes_per_sample;
+  
   % Break up file into path and extentions
-  [filepath, filename, ext] = fileparts(seismic_header.filepath);
-  matfile_lite = strcat(filepath, filename, '.mat_orig_lite')
-  matfile = strcat(filepath, filename, '.mat')
+  [filepath, filename, ext] = fileparts(seismic.filepath);
+  matfile_lite = strcat(filepath,'/', filename, '.mat_lite');
 
   % Convert File path into 64-bit integer array
   filepath_binary = uint64(seismic.filepath);  
@@ -116,7 +117,7 @@ function [matlite] = matlite_header_init(seismic_header, il_byte, xl_byte,...
   if leftovers > 0
       tmptr = fread(seismic.fid,[120+2*seismic.n_samples,leftovers],'uint16=>uint16');
       tmptr = tmptr(1:120,:);
-      [trace_header bytes_to_samples] = interpret(tmptr);
+      [trace_header, bytes_to_samples] = interpret(tmptr);
       
       trace_ilxl_bytes(:,1) = trace_header(bytes_to_samples == il_byte,:)';
       trace_ilxl_bytes(:,2) = trace_header(bytes_to_samples == xl_byte,:)';
@@ -128,12 +129,8 @@ function [matlite] = matlite_header_init(seismic_header, il_byte, xl_byte,...
       if is_gather == 1;
           % is gathers
           trace_ilxl_bytes(:,4) = trace_header(bytes_to_samples == offset_byte,:)'; % offset hard wired
-          
-          if anggath == 1
-              compress_ilxl_bytes = gather_compress_ilxl_bytes(trace_ilxl_bytes,leftovers);
-          else
-              compress_ilxl_bytes = gather_compress_ilxl_bytes_offset(trace_ilxl_bytes,leftovers);
-          end
+          compress_ilxl_bytes = gather_compress_ilxl_bytes_offset(trace_ilxl_bytes,leftovers);
+       
       else
           compress_ilxl_bytes = trace_compress_ilxl_bytes(trace_ilxl_bytes,leftovers);
       end

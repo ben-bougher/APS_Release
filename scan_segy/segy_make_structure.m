@@ -27,11 +27,11 @@ function segy_make_structure(segyfile,il_byte,xl_byte,offset_byte, block_size)
 %%
 
   % Seismic Header
-  seismic = seismic_header_init(segyfile);
+ 
+  seismic = seismic_header_init(segyfile, il_byte, xl_byte);
       
   % Summarize the byte locations of each trace
-  matlite_header_init(seismic, il_byte, xl_byte, ...
-                      block_size);
+  matlite_header_init(seismic, block_size, str2num(offset_byte));
 
    
 end

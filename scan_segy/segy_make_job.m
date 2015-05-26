@@ -1,5 +1,5 @@
 function segy_make_job(filepath,filename_string,il_byte,xl_byte,...
-                       offset_byte,parallel,anggath,output_dir)
+                       offset_byte,parallel,anggath,output_dir, block_size)
     %% ------------------ FUNCTION DEFINITION ---------------------------------
     % segy_make_job: function to scan SEGY file to gain geometry and
     % sample information used by other functions.
@@ -25,15 +25,7 @@ function segy_make_job(filepath,filename_string,il_byte,xl_byte,...
     %%-------------------PROCESSING FUNCTION ARGUMENTS--------------------------
     % Column numbers define output format of .mat_lite file. 
     % Should make this a global format definition.  
-
-    pkey_loc = 1;               % column numbers needs to be implemented Primary Key
-    skey_loc = 2;               % Secondary Key
-    byte_loc = 3;               % Byte location
-    skey_max_loc = 4;           % Secondary Key Maximum
-    skey_inc_loc = 5;           % Secondary Key Increment  
-    tkey_loc = 6;               % Tertiary Key
-    tkey_max_loc = 7;           % Tertiary Key Maximum
-    tkey_inc_loc = 8;           % Tertiary Key Increment 
+    job_meta = {};
 
 
     % TODO Why does this need to be a cell?
@@ -59,23 +51,29 @@ function segy_make_job(filepath,filename_string,il_byte,xl_byte,...
         filename = files_in.names{i_file};                         
         filepath = files_in.path{i_file};     
         
-        % Scan segy and make mat file <file name.mat_orig_lite> with structure 
-        % of format [ PKey SKey Byte_Loc SKey_max SKey_inc TKey TKey_max TKey_inc ]
-        % This checks if the file already exists. So if program is run repeatedly
-        % it checks lif the scan already exists skips rescanning. This
-        % also makes <file name.mat.lite>  file for later use
-        segy_make_structure(filepath,il_byte, xl_byte, ...
-                            offset_byte,filename); 
-        
+        [path, name, ext] = fileparts(filename);
+     
+        if( strcmp(ext,'.segy') | strcmp(ext, '.sgy'))
+            
+          
+            % Scan segy and make mat file <file name.mat_orig_lite> with structure 
+            % of format [ PKey SKey Byte_Loc SKey_max SKey_inc TKey TKey_max TKey_inc ]
+       
+            if exist(strcat(output_dir,name, '.mat_lite'), 'file') ~= 2
+                segy_make_structure(strcat(filepath, filename),il_byte, xl_byte, ...
+                                    offset_byte,block_size); 
+            end
+        end
 
     end
     
     
     %% Initialize the job meta file
-    job_meta = job_meta_init(files_in);
+    job_meta = job_meta_init(files_in, output_dir, il_byte, xl_byte,...
+        offset_byte);
     
     % Add the information from the seismic headers
-    job_meta_add_seismic_hdrs(job_meta);
+    job_meta = job_meta_add_seismic_hdrs(job_meta);
     
     
     %% Output the job meta
@@ -107,14 +105,13 @@ function segy_make_job(filepath,filename_string,il_byte,xl_byte,...
 
     fprintf('Saved seismic structure to file ...\n')
 
-    cd(start_point)
-
-%%        
+end
         
         
 
 
-function job_meta = job_meta_init(files_in)
+function job_meta = job_meta_init(files_in, output_dir, il_byte, ...
+    xl_byte, offset_byte)
 %% Function Definition
 % Initializes a job metadata structure from a list of segy files
 % 
@@ -124,14 +121,12 @@ function job_meta = job_meta_init(files_in)
 %  Output:
 %      job_meta structure
 %%
-  
-    job_meta = {};
     
-    for i_file 1:size(files_in.name,2)
+    for i_file = 1:size(files_in.names,2)
     
         % Add file name to the job meta
-        job_meta.files{i_file} = regexprep(files_in.names{i_file}, 'segy', ...
-                                           'mat_orig_lite');
+        job_meta.files{i_file} = regexprep(files_in.names{i_file}, 'segy|sgy', ...
+                                           'mat_lite');
     end
     
     %--------RESTRUCTURE JOB META FILE (REMOVE NON-ENTRIES,
@@ -157,7 +152,7 @@ function job_meta = job_meta_init(files_in)
     
 end
 
-function [] = job_meta_seismic_add_hdrs(job_meta)
+function job_meta = job_meta_add_seismic_hdrs(job_meta)
 %% Function Definition
 % Adds the seismic header information to the job meta structure
 %
@@ -167,18 +162,30 @@ function [] = job_meta_seismic_add_hdrs(job_meta)
 % Outputs: None
 %%
 
+    pkey_loc = 1;               % column numbers needs to be implemented Primary Key
+    skey_loc = 2;               % Secondary Key
+    byte_loc = 3;               % Byte location
+    skey_max_loc = 4;           % Secondary Key Maximum
+    skey_inc_loc = 5;           % Secondary Key Increment  
+    tkey_loc = 6;               % Tertiary Key
+    tkey_max_loc = 7;           % Tertiary Key Maximum
+    tkey_inc_loc = 8;           % Tertiary Key Increment 
+    
     files = job_meta.files;
+    nfiles = size(files,2);
 
     i_vol = 1;
+    ii = 1;
+    job_meta.vol_traces{i_vol,1} = 0;
     
     %---loop round all the mat_lite files to do with this job-------
     for il = 1:nfiles          
                        
         % Get the basic header information
-        seismic = segy_read_binary(strcat(files_in.path{il},...
-                                              files_in.names{il}));              
+        seismic = segy_read_binary(strcat(job_meta.paths{1},...
+                                              files{il}));              
 
-            
+
         job_meta.vol_traces{i_vol,1} = job_meta.vol_traces{i_vol,1}+...
             seismic.n_traces;
            

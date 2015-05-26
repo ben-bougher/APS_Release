@@ -26,7 +26,7 @@ function compress_ilxl_bytes = gather_compress_ilxl_bytes_offset(trace_ilxl_byte
     if blocktr > 1
         compress_offset_bytes = compress_tkeys(trace_ilxl_bytes, blocktr);
     
-        compress_ilxl_bytes = compress_skeys(compress_offset_bytes)
+        compress_ilxl_bytes = compress_skeys(compress_offset_bytes);
              
     else % for blocktr = 1 (1 trace per block)
        
@@ -43,7 +43,7 @@ end
 
 
         
-function compressed_lookup = compress_tkeys(trace_ilxl_bytes, ...
+function compress_offset_bytes = compress_tkeys(trace_ilxl_bytes, ...
                                               blocktr)
     %% Function Description
     % Compresses byte lookup information by defining the tertiary
@@ -124,12 +124,10 @@ function compressed_lookup = compress_tkeys(trace_ilxl_bytes, ...
         end
         
     end
-    
-    
-    compressed_lookup = compress_offset_bytes; 
+   
 end
 
-function compressed_lookup = compress_skeys(compress_offset_bytes)
+function compress_ilxl_bytes = compress_skeys(compress_offset_bytes)
 %% Function Definition
 % Compresses secondary lookup information by
 % grouping adjacent skeys with the same increment and tertiary key fields.
@@ -189,10 +187,10 @@ function compressed_lookup = compress_skeys(compress_offset_bytes)
                 
                 cur_inc = skey - skey_prev; 
                 
-                case true
+                switch true
                   
                
-                  of (cur_inc ~= skey_inc) & cur_inc == 0 do
+                    case (cur_inc ~= skey_inc) & cur_inc == 0 
                   % Same secondary key as previous group (duplicate)
                     
                     % Make a new trace group
@@ -209,9 +207,8 @@ function compressed_lookup = compress_skeys(compress_offset_bytes)
                     tkey_max_prev = tkey_max;
                     tkey_inc_prev = tkey_inc;
                     
-                    break;
                   
-                  of (cur_inc ~= skey_inc) & cur_inc == -999971 do
+                    case (cur_inc ~= skey_inc) & cur_inc == -999971 
                     % First trace in a new group or previous trace
                     % was a duplicate
                   
@@ -224,7 +221,7 @@ function compressed_lookup = compress_skeys(compress_offset_bytes)
                     tkey_max_prev = tkey_max;
                     tkey_inc_prev = tkey_inc;
                     
-                  of (cur_inc ~= skey_inc)
+                    case (cur_inc ~= skey_inc)
                   % New trace grouping with different skey increments
                             
                     % Requires a new trace grouping
@@ -239,7 +236,6 @@ function compressed_lookup = compress_skeys(compress_offset_bytes)
                     tkey_max_prev = tkey_max;
                     tkey_inc_prev = tkey_inc;
                             
-                    break;
                     
                 otherwise
                 % Compressible skey, add it to the group    
@@ -253,7 +249,7 @@ function compressed_lookup = compress_skeys(compress_offset_bytes)
                     tkey_max_prev = tkey_max;
                     tkey_inc_prev = tkey_inc;
                     
-                end_case
+                end
                 
                 
             else % New primary key or different set of teriary keys

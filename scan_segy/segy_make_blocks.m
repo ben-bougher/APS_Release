@@ -34,7 +34,7 @@ function [block_keys,n_blocks] = segy_make_blocks(job_meta_path)
     % memory per node
     gigabytes_per_block = 2;
 
-    total_blocks = ceil(sum(job_meta.vol_traces.*((cell2mat(job_meta.n_samples)'*4)+240)/1024/1024/1024)/gigabytes_per_block);
+    total_blocks = ceil(sum(job_meta.vol_traces{1} .* ((cell2mat(job_meta.n_samples)'*4)+240)/1024/1024/1024)/gigabytes_per_block);
 
     if total_blocks < 1089;
         if total_blocks < 288;
