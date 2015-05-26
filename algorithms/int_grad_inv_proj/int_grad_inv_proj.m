@@ -113,7 +113,7 @@ wsmo_scal = 5; % scaler to make the weighting in the tikonov regularisation , no
 % set initial variables
 totalvol = length(startvol:volinc:endvol);              % Total number of volumes to load
 job_meta = load(job_meta_path);                         % Load job meta information 
-wsmooth = job_meta.stdev_smo(str2double(i_block))*wsmo_scal;    % Get stdev for this block from the mat file
+wsmooth = 0.0%job_meta.stdev_smo(str2double(i_block))*wsmo_scal;    % Get stdev for this block from the mat file
 topfreq = 500000/job_meta.s_rate;
 top3dpt = topfreq*0.72;
 %
