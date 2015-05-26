@@ -1,25 +1,4 @@
 function [seismic, traces, ilxl_read, offset_read] = node_segy_read(job_meta_path,vol_index,i_block)
-%% ------------------ Disclaimer  ------------------
-% 
-% BG Group plc or any of its respective subsidiaries, affiliates and 
-% associated companies (or by any of their respective officers, employees 
-% or agents) makes no representation or warranty, express or implied, in 
-% respect to the quality, accuracy or usefulness of this repository. The code
-% is this repository is supplied with the explicit understanding and 
-% agreement of recipient that any action taken or expenditure made by 
-% recipient based on its examination, evaluation, interpretation or use is 
-% at its own risk and responsibility.
-% 
-% No representation or warranty, express or implied, is or will be made in 
-% relation to the accuracy or completeness of the information in this 
-% repository and no responsibility or liability is or will be accepted by 
-% BG Group plc or any of its respective subsidiaries, affiliates and 
-% associated companies (or by any of their respective officers, employees 
-% or agents) in relation to it.
-%% ------------------ License  ------------------ 
-% GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
-%% github
-% https://github.com/AnalysePrestackSeismic/
 %% ------------------ FUNCTION DEFINITION ---------------------------------
 % node_segy_read: function to read traces from a specific block with a
 % scanned segy volume
@@ -109,29 +88,6 @@ for ii_block = 1:1:size(blocks,1)
             elseif job_meta.is_gather == 1
                 % test to see if the gather is the same size as the
                 % next one - this should see if you can do a continious
-                % read
-%                 if vol_keys{ii_block}(i_counter+1,3) - vol_keys{ii_block}(i_counter,3) == vol_keys{ii_block}(i_counter,4)*(trc_length+trc_head)
-%                     i_counter = i_counter + 1;
-%                     %is_counter = is_counter + 1;
-%                 else  % perform continuous read
-%                     n_traces_to_read = i_counter-s_key;
-%                     %is_traces_to_read = is_counter-is_key+1;                    
-%                     is_traces_to_read = (n_traces_to_read)*vol_keys{ii_block}(i_counter-1,4);
-%                     % read to a temp array and then put into the correct
-%                     % location in the output array
-%                     
-%                     % Open the seismic segy file
-%                     [traces{ii_block}(:,is_key:is_key+is_traces_to_read-1), ilxl_read{ii_block}(is_key:is_key+is_traces_to_read-1,:), offset_read{ii_block}(is_key:is_key+is_traces_to_read-1,:)] ...
-%                         = read_traces_segy(seismic,vol_keys{ii_block}(s_key,3)-trc_head,is_traces_to_read);    
-%                     
-%                     
-%                     %alloffpres = size(offset_read{28},1)/fold
-%                     
-%                     s_key = s_key + n_traces_to_read;
-%                     %i_counter = i_counter + 1;
-%                     is_key = is_key + is_traces_to_read;
-%                     %is_counter = is_counter + 1;
-%                     end 
                 
                 %set the first gather to its own fold
                 if i_counter == 1

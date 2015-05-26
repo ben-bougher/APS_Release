@@ -1,25 +1,4 @@
 function [block_keys,n_blocks] = segy_make_blocks(job_meta_path)
-%% ------------------ Disclaimer  ------------------
-% 
-% BG Group plc or any of its respective subsidiaries, affiliates and 
-% associated companies (or by any of their respective officers, employees 
-% or agents) makes no representation or warranty, express or implied, in 
-% respect to the quality, accuracy or usefulness of this repository. The code
-% is this repository is supplied with the explicit understanding and 
-% agreement of recipient that any action taken or expenditure made by 
-% recipient based on its examination, evaluation, interpretation or use is 
-% at its own risk and responsibility.
-% 
-% No representation or warranty, express or implied, is or will be made in 
-% relation to the accuracy or completeness of the information in this 
-% repository and no responsibility or liability is or will be accepted by 
-% BG Group plc or any of its respective subsidiaries, affiliates and 
-% associated companies (or by any of their respective officers, employees 
-% or agents) in relation to it.
-%% ------------------ License  ------------------ 
-% GNU GENERAL PUBLIC LICENSE Version 3, 29 June 2007
-%% github
-% https://github.com/AnalysePrestackSeismic/
 %% ------------------ FUNCTION DEFINITION ---------------------------------
 %   segy_make_blocks: makes _mat_lite and mat_orig_lite files from the Seismic Header 
 %   Run this on one angle stack as they should all have the same
@@ -53,8 +32,6 @@ function [block_keys,n_blocks] = segy_make_blocks(job_meta_path)
     % this is the size of memory that is defined per block, needs to make
     % sure that the n cores per node * gigabytes_per_block is less than the
     % memory per node
-    
-    %gigabytes_per_block = 1.4;
     gigabytes_per_block = 2;
 
     total_blocks = ceil(sum(job_meta.vol_traces.*((cell2mat(job_meta.n_samples)'*4)+240)/1024/1024/1024)/gigabytes_per_block);
@@ -72,12 +49,9 @@ function [block_keys,n_blocks] = segy_make_blocks(job_meta_path)
 
     pkey_blocks = ceil(sqrt(total_blocks));
     skey_blocks = pkey_blocks;
-    %tkey_blocks = 1;
 
     % Need to correct
-    %pkey_inc = floor((mode(job_meta.pkey_max) - mode(job_meta.pkey_min))/pkey_blocks);
     pkey_inc = floor(((mode(job_meta.pkey_max) - mode(job_meta.pkey_min))/pkey_blocks)/job_meta.pkey_inc)*job_meta.pkey_inc;
-    %skey_inc = floor((mode(job_meta.skey_max) - mode(job_meta.skey_min))/skey_blocks);
     skey_inc = floor(((mode(job_meta.skey_max) - mode(job_meta.skey_min))/skey_blocks)/job_meta.skey_inc)*job_meta.skey_inc;
     
     if pkey_inc == 0
@@ -113,10 +87,9 @@ function [block_keys,n_blocks] = segy_make_blocks(job_meta_path)
     pkeys_max = pkeys_max';
     pkeys_max = pkeys_max(:);
 
-    %skeys_min = skeys_min';
+  
     skeys_min = skeys_min(:);
 
-    %skeys_max = skeys_max';
     skeys_max = skeys_max(:);
 
     block_keys = [pkeys_min, pkeys_max, skeys_min, skeys_max];

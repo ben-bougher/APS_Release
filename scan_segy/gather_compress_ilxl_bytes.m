@@ -46,10 +46,12 @@ trace_ilxl_bytes(1:end-1,5) = diff(trace_ilxl_bytes(:,4));
 start_idx = 1;
 count = 1;
 row_i = 1;
+
+% What do these mean?
 pkey_prev = -995837;
 skey_prev = -9999437;
 
-% this first compresses the offset header, but assumes uniform increments
+% this first compresses the offset header, but does not assumes uniform increments
 % between offsets/angles
 if blocktr > 1
     for row_i = start_idx:blocktr
@@ -59,10 +61,8 @@ if blocktr > 1
         tbyte = trace_ilxl_bytes(row_i,byte_loc);
         tkey_inc = trace_ilxl_bytes(row_i,5);
         
-        %if pkey == 2045 && skey == 6729 && tkey == 30
-        %   fprintf('got there\n'); 
-        %end
         if pkey == pkey_prev % same inline
+            
             if tkey_inc == tkey_inc_prev
                 tkey_inc_prev = tkey_inc;
                 skey_prev = skey;
