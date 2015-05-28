@@ -52,6 +52,7 @@ function [seismic] = seismic_header_init(segyfile, il_byte, xl_byte)
     seismic.s_rate = seismic.binary_header(6);                 
     seismic.file_type = seismic.binary_header(10);            
     
+    
     % need to break if not 1 or 5 because we don't handle it
     if seismic.file_type < 1 || seismic.file_type > 5 
         msgID = 'segy_make_structure:BadFileType';
