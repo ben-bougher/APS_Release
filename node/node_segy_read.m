@@ -35,7 +35,7 @@ end
 vol_keys = segy_index_byte_finder(job_meta_path,job_meta.block_keys(i_block,:),vol_index);
 
 vol_index = str2double(vol_index);
-vol_name = job_meta.volumes{vol_index};
+% vol_name = job_meta.volumes{vol_index};
     
 % find the names of the blocks for the given volume
 ii = 1;
@@ -47,10 +47,9 @@ else
 end
 
 for i_files = 1:1:loop_index
-    if strfind(job_meta.files{i_files},vol_name) == 1
-        blocks{ii,1} = job_meta.files{i_files};
-        ii = ii + 1;
-    end
+
+    blocks{i_files,1} = job_meta.files{i_files};
+
 end    
    
 %% loop over the blocks

@@ -26,21 +26,21 @@ else
 end
 
 for i_files = 1:1:loop_index
-    if strfind(job_meta.files{i_files},job_meta.volumes{vol_index})
-        seismic = segy_read_binary(strcat(job_meta.paths{1},job_meta.files{i_files}));
+    seismic = segy_read_binary(strcat(job_meta.paths{1},job_meta.files{i_files}));
 
-        expand_keys = expand_pst_keys(keys,...
-            job_meta.pkey_inc(vol_index),job_meta.skey_inc(vol_index));
-
-        keys_found = lookup_byte(seismic,expand_keys);
-        if size(keys_found,2) == 3 || size(keys_found,2) == 4; % no entry if it does not occur in the block
-            key_logic = keys_found(:,3) ~= 0;
-            vol_keys{i_block,1} = keys_found(key_logic,:);
-        else
-            vol_keys{i_block,1} = 0;
-        end
-        i_block = i_block+1;
+    expand_keys = expand_pst_keys(keys,...
+        job_meta.pkey_inc(vol_index),job_meta.skey_inc(vol_index));
+    
+    keys_found = lookup_byte(seismic,expand_keys);
+    
+    if size(keys_found,2) == 3 || size(keys_found,2) == 4; % no entry if it does not occur in the block
+        key_logic = keys_found(:,3) ~= 0;
+        vol_keys{i_block,1} = keys_found(key_logic,:);
+    else
+        vol_keys{i_block,1} = 0;
     end
+    i_block = i_block+1;
+
 end
     
 
