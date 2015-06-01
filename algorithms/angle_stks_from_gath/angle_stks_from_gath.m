@@ -37,9 +37,6 @@ else
 end
 % tottracerun = 500;
 
-
-
-
 % to reduce printout in compilied version turned all warning off
 warning off all;
 
